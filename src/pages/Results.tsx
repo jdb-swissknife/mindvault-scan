@@ -70,7 +70,7 @@ export default function Results() {
 
   if (!result) return null
 
-  const { domain, trade, city, state, score, sections, actions } = result
+  const { domain, trade, city, state, score, sections } = result
 
   return (
     <div className="min-h-screen bg-[#111111] text-white">
@@ -164,12 +164,21 @@ export default function Results() {
                     <div className="px-5 pb-4 space-y-3">
                       {checks.map((check: SEOCheck) => {
                         const Icon = STATUS_ICON[check.status]
+                        const showImpact = (check.status === 'warn' || check.status === 'fail') && check.impact_note
                         return (
                           <div key={check.id} className="flex gap-3">
                             <Icon className={`w-5 h-5 shrink-0 mt-0.5 ${STATUS_COLOR[check.status]}`} />
                             <div>
                               <p className="text-sm font-medium">{check.label}</p>
                               <p className="text-xs text-white/50 mt-0.5">{check.detail}</p>
+                              {showImpact && (
+                                <div className="mt-2 border-l-2 border-[#c2703e] pl-3">
+                                  <p className="text-xs text-white/60">{check.impact_note}</p>
+                                  {check.solution_hint && (
+                                    <p className="text-xs text-white/40 italic mt-1">How we'd fix it: {check.solution_hint}</p>
+                                  )}
+                                </div>
+                              )}
                             </div>
                           </div>
                         )
@@ -181,37 +190,44 @@ export default function Results() {
             })}
           </div>
 
-          {/* Priority actions */}
-          {actions.length > 0 && (
-            <div className="bg-white/5 border border-white/10 rounded-xl p-6 mb-10">
-              <h2 className="text-lg font-bold mb-4 font-serif">Top Actions to Fix</h2>
-              <div className="space-y-3">
-                {actions.map((a, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    <span className={`text-xs font-bold px-2 py-0.5 rounded ${
-                      a.priority === 'CRITICAL' ? 'bg-red-500/20 text-red-400' :
-                      a.priority === 'HIGH' ? 'bg-orange-500/20 text-orange-400' :
-                      'bg-blue-500/20 text-blue-400'
-                    }`}>{a.priority}</span>
-                    <p className="text-sm text-white/70">{a.action}</p>
-                  </div>
-                ))}
+          {/* What's Hurting You Most */}
+          {(() => {
+            const hurting = Object.values(sections)
+              .flat()
+              .filter((c: SEOCheck) => (c.status === 'warn' || c.status === 'fail') && c.impact_note)
+              .sort((a: SEOCheck, b: SEOCheck) => (a.status === 'fail' ? 0 : 1) - (b.status === 'fail' ? 0 : 1))
+              .slice(0, 6)
+            return hurting.length > 0 ? (
+              <div className="bg-white/5 border border-white/10 rounded-xl p-6 mb-10">
+                <h2 className="text-lg font-bold mb-4 font-serif">What's Hurting You Most</h2>
+                <div className="space-y-3">
+                  {hurting.map((c: SEOCheck) => (
+                    <div key={c.id} className="flex items-start gap-3">
+                      <span className={`shrink-0 w-2 h-2 rounded-full mt-1.5 ${c.status === 'fail' ? 'bg-red-500' : 'bg-amber-500'}`} />
+                      <div>
+                        <p className="text-sm font-medium">{c.label}</p>
+                        <p className="text-xs text-white/50 mt-0.5">{c.impact_note.length > 80 ? c.impact_note.slice(0, 80) + '...' : c.impact_note}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            ) : null
+          })()}
         </div>
 
         {/* CTA card - shown after unlock */}
         {unlocked && (
           <div className="bg-[#c2703e]/20 border border-[#c2703e]/30 rounded-xl p-6 text-center mt-8">
-            <h3 className="text-lg font-bold mb-2 font-serif">Want us to fix this for you?</h3>
+            <h3 className="text-lg font-bold mb-2 font-serif">Every fix above, handled for you.</h3>
             <p className="text-sm text-white/60 mb-4">
-              Mind<span className="text-[#c2703e]">Vault</span> handles your entire SEO. From technical fixes to content to monitoring.
+              Mind<span className="text-[#c2703e]">Vault</span> builds SEO that gets service businesses found. Technical fixes, content, local SEO, monitoring. All done in 2 weeks.
             </p>
             <a href="https://mindvaultstudio.net" target="_blank" rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-[#c2703e] hover:bg-[#a85a2a] text-white font-semibold px-6 py-3 rounded-xl transition-colors">
-              Book a Free Call <ArrowRight className="w-4 h-4" />
+              Book Your Free Strategy Call <ArrowRight className="w-4 h-4" />
             </a>
+            <p className="text-xs text-white/40 mt-3">Free consultation. No commitment. Results in 14 days or your money back.</p>
           </div>
         )}
       </main>

@@ -3,7 +3,7 @@
 
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
 
-const SERPER_API_KEY = Deno.env.get('SERPER_API_KEY')!
+const SERPER_API_KEY=Deno.env.get('SERPER_API_KEY')!
 
 interface SEORequest {
   domain: string
@@ -17,6 +17,8 @@ interface Check {
   label: string
   status: 'pass' | 'warn' | 'fail'
   detail: string
+  impact_note: string
+  solution_hint: string
 }
 
 interface Action {
@@ -69,6 +71,8 @@ async function checkIndex(domain: string): Promise<Check[]> {
       : count > 0
         ? `Only ${count} pages found. Most businesses need 10+ pages to rank well.`
         : 'No pages found in Google index. Your site may not be indexed at all.',
+    impact_note: count > 5 ? '' : "If Google hasn't indexed your pages, you simply don't exist in search results. No index means no traffic, no leads.",
+    solution_hint: count > 5 ? '' : 'This requires technical fixes to ensure Google can discover and crawl every important page on your site.',
   })
 
   const sitemap = await fetchPage(`https://${domain}/sitemap.xml`)
@@ -79,6 +83,8 @@ async function checkIndex(domain: string): Promise<Check[]> {
     detail: sitemap
       ? 'Sitemap found. Google uses this to discover and crawl your pages.'
       : 'No sitemap found. Add /sitemap.xml to help Google crawl your site.',
+    impact_note: sitemap ? '' : 'Without a sitemap, Google has to guess where your pages are. Important pages may never get found.',
+    solution_hint: sitemap ? '' : 'We generate and maintain a proper sitemap that guides Google to every page you want ranked.',
   })
 
   const robots = await fetchPage(`https://${domain}/robots.txt`)
@@ -90,6 +96,8 @@ async function checkIndex(domain: string): Promise<Check[]> {
     detail: blocked
       ? 'robots.txt is blocking Google from crawling your site. Fix this immediately.'
       : 'robots.txt is not blocking Google. Good.',
+    impact_note: blocked ? "Your robots.txt file is literally telling Google not to crawl your site. You're invisible." : '',
+    solution_hint: blocked ? 'This requires fixing your robots.txt configuration to allow Google full access to your site.' : '',
   })
 
   return checks
@@ -100,7 +108,7 @@ async function checkOnPage(domain: string): Promise<Check[]> {
   const checks: Check[] = []
   const html = await fetchPage(`https://${domain}`)
   if (!html) {
-    checks.push({ id: 'B1', label: 'Could not fetch homepage', status: 'fail', detail: 'Unable to fetch your homepage.' })
+    checks.push({ id: 'B1', label: 'Could not fetch homepage', status: 'fail', detail: 'Unable to fetch your homepage.', impact_note: "Your page title is what shows up in Google search results. Without a good one, people skip right past you.", solution_hint: 'This involves writing optimized titles that include your service and city to maximize click-through rates.' })
     return checks
   }
 
@@ -114,6 +122,8 @@ async function checkOnPage(domain: string): Promise<Check[]> {
     detail: title
       ? `"${title.slice(0, 60)}" (${title.length} chars). ${title.length > 60 ? 'Titles over 60 chars get cut in results.' : title.length < 10 ? 'Title too short.' : 'Good length.'}`
       : 'No meta title found. Add a descriptive title between 10-60 characters.',
+    impact_note: title.length >= 10 && title.length <= 60 ? '' : 'Your page title is what shows up in Google search results. Without a good one, people skip right past you.',
+    solution_hint: title.length >= 10 && title.length <= 60 ? '' : 'This involves writing optimized titles that include your service and city to maximize click-through rates.',
   })
 
   // Meta description
@@ -127,6 +137,8 @@ async function checkOnPage(domain: string): Promise<Check[]> {
     detail: desc
       ? `"${desc.slice(0, 100)}" (${desc.length} chars). ${desc.length < 70 ? 'Too short -- aim for 70-160.' : desc.length > 160 ? 'Over 160 --会被截断.' : 'Good length.'}`
       : 'No meta description. This is what shows in Google search results.',
+    impact_note: desc.length >= 70 && desc.length <= 160 ? '' : 'Your meta description is your sales pitch in Google results. Missing or weak ones mean fewer clicks.',
+    solution_hint: desc.length >= 70 && desc.length <= 160 ? '' : 'This involves crafting compelling descriptions with a clear call-to-action that drives clicks.',
   })
 
   // Heading structure
@@ -137,6 +149,8 @@ async function checkOnPage(domain: string): Promise<Check[]> {
     label: 'H1/H2 heading structure',
     status: h1s === 1 && h2s >= 2 ? 'pass' : h1s > 1 ? 'fail' : 'warn',
     detail: `Found ${h1s} H1, ${h2s} H2. ${h1s === 0 ? 'No H1 found -- add one.' : h1s > 1 ? `Multiple H1s found (${h1s}). Use only one per page.` : h2s < 2 ? 'Add more H2 subheadings to structure your content.' : 'Good structure.'}`,
+    impact_note: h1s === 1 && h2s >= 2 ? '' : "Headings tell Google what each page is about. Missing or wrong headings mean Google doesn't understand your content.",
+    solution_hint: h1s === 1 && h2s >= 2 ? '' : 'This involves restructuring your pages with proper headings that clearly communicate your services to Google.',
   })
 
   // Image alt text
@@ -148,6 +162,8 @@ async function checkOnPage(domain: string): Promise<Check[]> {
     detail: imgsWithoutAlt === 0
       ? 'All images have alt text. Good for accessibility and SEO.'
       : `${imgsWithoutAlt} images missing alt text. Alt text helps Google understand images and improves rankings.`,
+    impact_note: imgsWithoutAlt === 0 ? '' : 'Images without alt text are invisible to Google. Your project photos and gallery images are wasted SEO potential.',
+    solution_hint: imgsWithoutAlt === 0 ? '' : 'This involves adding descriptive text to every image so Google can understand and rank your visual content.',
   })
 
   // Canonical tag
@@ -159,6 +175,8 @@ async function checkOnPage(domain: string): Promise<Check[]> {
     detail: hasCanonical
       ? 'Canonical tag found. This prevents duplicate content issues.'
       : 'No canonical tag. Add one to tell Google which URL is the primary version.',
+    impact_note: hasCanonical ? '' : 'Without a canonical tag, Google may index duplicate versions of your pages, diluting your rankings.',
+    solution_hint: hasCanonical ? '' : 'This involves adding canonical tags to tell Google exactly which version of each page to rank.',
   })
 
   return checks
@@ -169,7 +187,7 @@ async function checkSpeedMobile(domain: string): Promise<Check[]> {
   const checks: Check[] = []
   const html = await fetchPage(`https://${domain}`)
   if (!html) {
-    checks.push({ id: 'C1', label: 'Could not fetch homepage', status: 'fail', detail: 'Unable to fetch homepage.' })
+    checks.push({ id: 'C1', label: 'Could not fetch homepage', status: 'fail', detail: 'Unable to fetch homepage.', impact_note: 'A slow site means visitors leave before it loads. Google also ranks slower sites lower.', solution_hint: 'This involves optimizing your site\'s loading performance by deferring non-critical scripts and streamlining code.' })
     return checks
   }
 
@@ -183,6 +201,8 @@ async function checkSpeedMobile(domain: string): Promise<Check[]> {
     label: 'Render-blocking resources',
     status: blockingScore < 5 ? 'pass' : blockingScore < 10 ? 'warn' : 'fail',
     detail: `Found ${scripts} scripts and ${stylesheets} stylesheets. ${blockingScore >= 10 ? 'Too many blocking resources -- defer or inline them.' : blockingScore >= 5 ? 'Some blocking resources -- consider deferring non-critical JS.' : 'Minimal blocking resources.'}`,
+    impact_note: blockingScore < 5 ? '' : 'A slow site means visitors leave before it loads. Google also ranks slower sites lower.',
+    solution_hint: blockingScore < 5 ? '' : 'This involves optimizing your site\'s loading performance by deferring non-critical scripts and streamlining code.',
   })
 
   // Viewport meta
@@ -194,6 +214,8 @@ async function checkSpeedMobile(domain: string): Promise<Check[]> {
     detail: hasViewport
       ? 'Viewport meta tag found. Your site is set up for mobile.'
       : 'No viewport meta tag. Add <meta name="viewport" content="width=device-width, initial-scale=1"> for mobile.',
+    impact_note: hasViewport ? '' : 'Without proper mobile setup, your site looks broken on phones. Over 60% of searches happen on mobile.',
+    solution_hint: hasViewport ? '' : 'This involves adding the proper mobile configuration so your site displays correctly on every device.',
   })
 
   // HTTPS check
@@ -205,6 +227,8 @@ async function checkSpeedMobile(domain: string): Promise<Check[]> {
     detail: originalUrl.startsWith('https://')
       ? 'HTTPS is enabled. Google prioritizes secure sites.'
       : 'Not using HTTPS. Google marks HTTP sites as insecure and penalizes rankings.',
+    impact_note: originalUrl.startsWith('https://') ? '' : 'Google marks non-HTTPS sites as insecure. Visitors see a warning and leave. Rankings also suffer.',
+    solution_hint: originalUrl.startsWith('https://') ? '' : 'This requires installing an SSL certificate and configuring your site to use HTTPS.',
   })
 
   return checks
@@ -241,6 +265,8 @@ async function checkKeywords(domain: string, trade: string, city: string, state:
       : rankingsFound > 0
         ? `Found in only ${rankingsFound}/${queries.length} queries. You have rankings but competitors dominate.`
         : `Not found in any of ${queries.length} test queries. You're invisible on Google for "${trade} ${city}".`,
+    impact_note: rankingsFound >= 3 ? '' : "You're not showing up when people search for your services in your area. Your competitors are getting those leads.",
+    solution_hint: rankingsFound >= 3 ? '' : 'This requires a combination of content optimization, local SEO, and authority building to climb the rankings.',
   })
 
   // Competitor snapshot
@@ -257,6 +283,8 @@ async function checkKeywords(domain: string, trade: string, city: string, state:
     detail: competitors.length > 0
       ? `Top results for "${queries[0]}": ${competitors.join(', ')}`
       : 'No clear competitors found.',
+    impact_note: 'These are the businesses getting the clicks and calls that should be going to you.',
+    solution_hint: 'We analyze your specific competitors and build a strategy to outrank them systematically.',
   })
 
   return checks
@@ -276,6 +304,8 @@ async function checkLocal(domain: string, trade: string, city: string, state: st
     detail: gbpSerp.length > 0
       ? `Found Google Business Profile listing. Make sure it's claimed and optimized.`
       : 'No Google Business Profile found. Create one at business.google.com -- it\'s free and critical for local SEO.',
+    impact_note: gbpSerp.length > 0 ? '' : 'Without a Google Business Profile, you don\'t appear in Google Maps or the local pack where most clicks happen.',
+    solution_hint: gbpSerp.length > 0 ? '' : 'This involves creating and fully optimizing your Google Business Profile with all services, photos, and details.',
   })
 
   // Yelp
@@ -287,6 +317,8 @@ async function checkLocal(domain: string, trade: string, city: string, state: st
     detail: yelpSerp.length > 0
       ? 'Found on Yelp. Keep reviews fresh and respond to all of them.'
       : 'Not found on Yelp. Create and optimize a Yelp business page.',
+    impact_note: yelpSerp.length > 0 ? '' : 'Yelp is one of the top sites Google pulls data from. Missing it weakens your local search presence.',
+    solution_hint: yelpSerp.length > 0 ? '' : 'This involves creating and optimizing your Yelp listing with accurate info and fresh reviews.',
   })
 
   // Other citations
@@ -311,6 +343,8 @@ async function checkLocal(domain: string, trade: string, city: string, state: st
       : citationsFound === 1
         ? `Found only 1 citation. Build more citations on Bing Places, Apple Maps, and BBB.`
         : 'No major citations found. Your NAP (name, address, phone) must be consistent across every directory.',
+    impact_note: citationsFound >= 2 ? '' : "Inconsistent business info across directories confuses Google. Your rankings suffer when Google isn't sure which info is correct.",
+    solution_hint: citationsFound >= 2 ? '' : 'This involves auditing and fixing your business name, address, and phone across 50+ directories.',
   })
 
   // City/state in title or H1
@@ -324,6 +358,8 @@ async function checkLocal(domain: string, trade: string, city: string, state: st
     detail: hasLocation
       ? 'Your city/state appears on the homepage. Good for local SEO.'
       : `Your city (${city}) and state (${state}) don't appear on your homepage. Add them to your homepage text.`,
+    impact_note: hasLocation ? '' : "Google can't rank you for local searches if your city and state aren't on your site. Simple but critical.",
+    solution_hint: hasLocation ? '' : 'This involves adding your service area and location signals to key pages so Google knows where you operate.',
   })
 
   return checks
@@ -344,6 +380,8 @@ async function checkBacklinks(domain: string): Promise<Check[]> {
       : backlinkSerp.length > 0
         ? `Only ${backlinkSerp.length} backlink found. You need more high-quality backlinks to compete.`
         : "No backlinks found. Backlinks are one of Google's top ranking factors.",
+    impact_note: backlinkSerp.length >= 3 ? '' : "Backlinks are one of Google's top 3 ranking factors. Without them, you can't compete for competitive searches.",
+    solution_hint: backlinkSerp.length >= 3 ? '' : 'This involves building quality links from local partners, industry sites, and directories to strengthen your authority.',
   })
 
   // Domain age hint (rough)
@@ -355,6 +393,8 @@ async function checkBacklinks(domain: string): Promise<Check[]> {
     detail: backlinkSerp.length >= 5
       ? `Decent backlink profile. Focus on earning links from local partners, vendors, and industry sites.`
       : `Low backlink count. Focus on local citations, guest posts, and partnerships to build authority.`,
+    impact_note: 'Building authority takes time but is essential for long-term rankings. Your competitors with more authority will keep outranking you.',
+    solution_hint: 'We build a link earning strategy focused on local relevance and industry authority.',
   })
 
   return checks
