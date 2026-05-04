@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ScanLine, CheckCircle2, AlertTriangle, XCircle, ArrowRight, ChevronDown, ChevronUp } from 'lucide-react'
+import { CheckCircle2, AlertTriangle, XCircle, ArrowRight, ChevronDown, ChevronUp } from 'lucide-react'
 import { type SEOResult, type SEOCheck } from '../types'
 import { scoreColor, scoreLabel, scoreSummary } from '../lib/audit'
 import { supabase } from '../lib/supabase'
@@ -20,7 +20,7 @@ const STATUS_ICON = {
   fail: XCircle,
 }
 const STATUS_COLOR = {
-  pass: 'text-[#10b981]',
+  pass: 'text-[#22C55E]',
   warn: 'text-[#f59e0b]',
   fail: 'text-[#ef4444]',
 }
@@ -70,11 +70,11 @@ export default function Results() {
   const { domain, trade, city, state, score, sections, actions } = result
 
   return (
-    <div className="min-h-screen bg-[#0a1230] text-white">
+    <div className="min-h-screen bg-[#111111] text-white">
       <header className="border-b border-white/10">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center gap-2">
-          <ScanLine className="w-7 h-7 text-[#10b981]" />
-          <span className="font-bold text-lg">MindVault Scan</span>
+          <img src="/logo.png" alt="MindVault" className="h-8 w-8" />
+          <span className="font-bold text-lg">Mind<span className="text-[#c2703e]">Vault</span> Scan</span>
         </div>
       </header>
 
@@ -91,7 +91,7 @@ export default function Results() {
               <span className="text-4xl font-extrabold" style={{ color: scoreColor(score) }}>{score}</span>
             </div>
           </div>
-          <h1 className="text-2xl font-bold mb-1">{domain}</h1>
+          <h1 className="text-2xl font-bold mb-1 font-serif">{domain}</h1>
           <p className="text-white/50 mb-2">{trade} in {city}, {state}</p>
           <p className="text-lg font-semibold" style={{ color: scoreColor(score) }}>{scoreLabel(score)}</p>
           <p className="text-white/50 text-sm mt-2 max-w-lg mx-auto">
@@ -141,7 +141,7 @@ export default function Results() {
         {/* Priority actions */}
         {actions.length > 0 && (
           <div className="bg-white/5 border border-white/10 rounded-xl p-6 mb-10">
-            <h2 className="text-lg font-bold mb-4">Top Actions to Fix</h2>
+            <h2 className="text-lg font-bold mb-4 font-serif">Top Actions to Fix</h2>
             <div className="space-y-3">
               {actions.map((a, i) => (
                 <div key={i} className="flex items-start gap-3">
@@ -161,13 +161,13 @@ export default function Results() {
         <div className="bg-white/5 border border-white/10 rounded-xl p-6 text-center">
           {emailSent ? (
             <div>
-              <CheckCircle2 className="w-8 h-8 text-[#10b981] mx-auto mb-2" />
+              <CheckCircle2 className="w-8 h-8 text-[#22C55E] mx-auto mb-2" />
               <p className="font-semibold">Report sent!</p>
               <p className="text-sm text-white/50">We'll email your full SEO report with step-by-step fixes.</p>
             </div>
           ) : (
             <form onSubmit={handleEmail}>
-              <h3 className="text-lg font-bold mb-1">Get Your Full Report</h3>
+              <h3 className="text-lg font-bold mb-1 font-serif">Get Your Full Report</h3>
               <p className="text-sm text-white/50 mb-4">We'll email you the full breakdown with step-by-step fixes.</p>
               <div className="flex gap-3 max-w-md mx-auto">
                 <input
@@ -175,21 +175,22 @@ export default function Results() {
                   placeholder="you@company.com"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  className="flex-1 bg-white/10 border border-white/20 rounded-lg px-4 py-2.5 text-white placeholder-white/30 focus:outline-none focus:border-[#10b981]"
+                  className="flex-1 bg-white/10 border border-white/20 rounded-lg px-4 py-2.5 text-white placeholder-white/30 focus:outline-none focus:border-[#c2703e]"
                   required
                 />
-                <button type="submit" className="bg-[#10b981] hover:bg-[#059669] px-5 py-2.5 rounded-lg font-semibold flex items-center gap-1 transition-colors">
+                <button type="submit" className="bg-[#c2703e] hover:bg-[#a85a2a] px-5 py-2.5 rounded-lg font-semibold flex items-center gap-1 transition-colors">
                   Send <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
             </form>
           )}
         </div>
-
-        <p className="text-center text-white/20 text-xs mt-8">
-          Powered by MindVault Studio
-        </p>
       </main>
+
+      <footer className="border-t border-[#e7ddd3] bg-[#f7f3ee] py-6 px-4 text-center">
+        <p className="text-sm italic text-[#c2703e]">Your AI Workforce, Managed.</p>
+        <p className="text-xs text-stone-500 mt-2">&copy; {new Date().getFullYear()} Mind<span className="text-[#c2703e]">Vault</span> Studio. All rights reserved.</p>
+      </footer>
     </div>
   )
 }

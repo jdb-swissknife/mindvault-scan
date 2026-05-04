@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ScanLine, ArrowRight, Search, Zap, Target, MapPin } from 'lucide-react'
+import { ArrowRight, Search, Zap, Target, MapPin } from 'lucide-react'
 import { TRADES, US_STATES, type SEORequest } from '../types'
 
 export default function Landing() {
@@ -22,19 +22,19 @@ export default function Landing() {
   ]
 
   return (
-    <div className="min-h-screen bg-[#0a1230] text-white">
+    <div className="min-h-screen bg-[#111111] text-white">
       <header className="border-b border-white/10">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center gap-2">
-          <ScanLine className="w-7 h-7 text-[#10b981]" />
-          <span className="font-bold text-lg">MindVault Scan</span>
+          <img src="/logo.png" alt="MindVault" className="h-8 w-8" />
+          <span className="font-bold text-lg">Mind<span className="text-[#c2703e]">Vault</span> Scan</span>
         </div>
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-16">
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <h1 className="text-4xl md:text-5xl font-extrabold mb-4 leading-tight">
+          <h1 className="text-4xl md:text-5xl font-extrabold mb-4 leading-tight font-serif">
             Scan your site.<br />
-            <span className="text-[#10b981]">See what's holding you back.</span>
+            <span className="text-[#c2703e]">See what's holding you back.</span>
           </h1>
           <p className="text-white/60 text-lg">
             Free 30-second SEO audit. Check your Google rankings, page speed, local SEO, and get a fix-it plan.
@@ -49,7 +49,7 @@ export default function Landing() {
               placeholder="yourcompany.com"
               value={form.domain}
               onChange={e => setForm(f => ({ ...f, domain: e.target.value }))}
-              className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#10b981]"
+              className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#c2703e]"
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -58,10 +58,10 @@ export default function Landing() {
               <select
                 value={form.trade}
                 onChange={e => setForm(f => ({ ...f, trade: e.target.value }))}
-                className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#10b981] appearance-none"
+                className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#c2703e] appearance-none"
               >
-                <option value="" className="bg-[#0a1230]">Select trade...</option>
-                {TRADES.map(t => <option key={t} value={t} className="bg-[#0a1230]">{t}</option>)}
+                <option value="" className="bg-[#111111]">Select trade...</option>
+                {TRADES.map(t => <option key={t} value={t} className="bg-[#111111]">{t}</option>)}
               </select>
             </div>
             <div>
@@ -69,10 +69,10 @@ export default function Landing() {
               <select
                 value={form.state}
                 onChange={e => setForm(f => ({ ...f, state: e.target.value }))}
-                className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#10b981] appearance-none"
+                className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#c2703e] appearance-none"
               >
-                <option value="" className="bg-[#0a1230]">State...</option>
-                {US_STATES.map(s => <option key={s} value={s} className="bg-[#0a1230]">{s}</option>)}
+                <option value="" className="bg-[#111111]">State...</option>
+                {US_STATES.map(s => <option key={s} value={s} className="bg-[#111111]">{s}</option>)}
               </select>
             </div>
           </div>
@@ -83,12 +83,12 @@ export default function Landing() {
               placeholder="Minneapolis"
               value={form.city}
               onChange={e => setForm(f => ({ ...f, city: e.target.value }))}
-              className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#10b981]"
+              className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#c2703e]"
             />
           </div>
           <button
             type="submit"
-            className="w-full bg-[#10b981] hover:bg-[#059669] text-white font-bold py-3.5 rounded-lg flex items-center justify-center gap-2 transition-colors"
+            className="w-full bg-[#c2703e] hover:bg-[#a85a2a] text-white font-bold py-3.5 rounded-lg flex items-center justify-center gap-2 transition-colors"
           >
             Run SEO Scan <ArrowRight className="w-5 h-5" />
           </button>
@@ -97,17 +97,18 @@ export default function Landing() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-16">
           {features.map(f => (
             <div key={f.title} className="bg-white/5 border border-white/10 rounded-xl p-5">
-              <f.icon className="w-8 h-8 text-[#10b981] mb-3" />
-              <h3 className="font-semibold mb-1">{f.title}</h3>
+              <f.icon className="w-8 h-8 text-[#c2703e] mb-3" />
+              <h3 className="font-semibold mb-1 font-serif">{f.title}</h3>
               <p className="text-sm text-white/50">{f.desc}</p>
             </div>
           ))}
         </div>
-
-        <p className="text-center text-white/30 text-sm mt-12">
-          Powered by MindVault Studio. From scan to done-for-you SEO.
-        </p>
       </main>
+
+      <footer className="border-t border-[#e7ddd3] bg-[#f7f3ee] py-6 px-4 text-center">
+        <p className="text-sm italic text-[#c2703e]">Your AI Workforce, Managed.</p>
+        <p className="text-xs text-stone-500 mt-2">&copy; {new Date().getFullYear()} Mind<span className="text-[#c2703e]">Vault</span> Studio. All rights reserved.</p>
+      </footer>
     </div>
   )
 }
