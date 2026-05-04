@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowRight, Search, Zap, Target, MapPin } from 'lucide-react'
+import { ArrowRight, Search, Zap, Target, MapPin, Radar } from 'lucide-react'
 import { TRADES, US_STATES, type SEORequest } from '../types'
 
 export default function Landing() {
@@ -27,6 +27,12 @@ export default function Landing() {
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center gap-2">
           <img src="/logo.png" alt="MindVault" className="h-8 w-8" />
           <span className="font-bold text-lg">Mind<span className="text-[#c2703e]">Vault</span> Scan</span>
+          <div className="ml-auto flex items-center gap-4">
+            <a href="https://radar.mindvaultstudio.net" className="flex items-center gap-1.5 text-sm text-white/50 hover:text-[#c2703e] transition-colors">
+              <Radar className="w-4 h-4" />
+              AI Radar
+            </a>
+          </div>
         </div>
       </header>
 
@@ -93,6 +99,20 @@ export default function Landing() {
             Run SEO Scan <ArrowRight className="w-5 h-5" />
           </button>
         </form>
+
+        {/* Cross-promo: Try AI Radar */}
+        <a href="https://radar.mindvaultstudio.net" className="max-w-xl mx-auto mt-8 flex items-center justify-between bg-white/5 border border-white/10 rounded-2xl px-6 py-5 hover:border-[#c2703e]/40 transition-colors group">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-[#c2703e]/20 flex items-center justify-center">
+              <Radar className="w-6 h-6 text-[#c2703e]" />
+            </div>
+            <div>
+              <p className="font-semibold text-sm">Also check your AI visibility</p>
+              <p className="text-xs text-white/50">See if ChatGPT, Perplexity, and Gemini recommend your business. Free 30-second scan.</p>
+            </div>
+          </div>
+          <ArrowRight className="w-5 h-5 text-white/30 group-hover:text-[#c2703e] transition-colors" />
+        </a>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-16">
           {features.map(f => (

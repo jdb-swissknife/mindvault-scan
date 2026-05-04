@@ -196,8 +196,8 @@ async function checkSpeedMobile(domain: string): Promise<Check[]> {
       : 'No viewport meta tag. Add <meta name="viewport" content="width=device-width, initial-scale=1"> for mobile.',
   })
 
-  // HTTPS check (body.domain may include https://)
-  const originalUrl = body.domain.startsWith('http') ? body.domain : `https://${domain}`
+  // HTTPS check
+  const originalUrl = `https://${domain}`
   checks.push({
     id: 'C3',
     label: 'HTTPS enabled',
